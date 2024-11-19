@@ -21,6 +21,18 @@ Breakout::~Breakout()
 {
 }
 
+char lastKeyPressed = '\0';
+
+void drawText(float x, float y, const char *text, float r, float g, float b)
+{
+    glColor3f(r, g, b);
+    glRasterPos2f(x, y);
+    for (const char *c = text; *c != '\0'; ++c)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+}
+
 void Breakout::display(void)
 {
 
@@ -56,7 +68,7 @@ void Breakout::display(void)
         // Draw the game
         drawGame();
         // If no balls, player loses the game
-        if (balls.size() <= 0 & lifesCount > 0)
+        if (balls.size() <= 0 && lifesCount > 0)
         {
             newBall(-1, -1);
             lifesCount--;
@@ -64,7 +76,8 @@ void Breakout::display(void)
         }
         else if (balls.size() <= 0)
         {
-            // TODO - GAME OVER
+            // GAME OVER
+            gameState = GameOver; // Change the game state to GameOver
         }
 
         // If no bricks, player wins the level
@@ -75,7 +88,33 @@ void Breakout::display(void)
         }
         else if (bricks.size() <= 0)
         {
-            // TODO - PLAYER WON
+            // PLAYER WON
+            gameState = PlayerWon; // Change the game state to PlayerWon
+        }
+        break;
+
+    case GameOver:
+        // GAME OVER SCREEN
+        drawText(WINWIDTH / 2 - 100, WINHEIGHT / 2, "GAME OVER", 1.0f, 0.0f, 0.0f);
+        drawText(WINWIDTH / 2 - 100, WINHEIGHT / 2 + 50, "Press N to Restart", 1.0f, 1.0f, 1.0f);
+        // Wait for user input to restart
+        if (lastKeyPressed == 'N')
+        {
+            lastKeyPressed = '\0';
+            gameState = INIT; // Restart the game
+        }
+        break;
+
+    case PlayerWon:
+        // PLAYER WON SCREEN
+        drawText(WINWIDTH / 2 - 100, WINHEIGHT / 2, "YOU WIN!", 0.0f, 1.0f, 0.0f);
+        drawText(WINWIDTH / 2 - 150, WINHEIGHT / 2 + 50, "Press N to Play Again", 1.0f, 1.0f, 1.0f);
+        // Wait for user input to restart
+        if (lastKeyPressed == 'N')
+        {
+            lastKeyPressed = '\0';
+
+            gameState = INIT; // Restart the game
         }
         break;
 
@@ -86,7 +125,6 @@ void Breakout::display(void)
     default:
         break;
     }
-
     glutTimerFunc(TIMER, recomputeFrame, 0);
 
     glutSwapBuffers();
@@ -486,7 +524,6 @@ void Breakout::drawLife(float x, float y)
     // Scale the heart symbol
     float const scale = 0.5f;
 
-    // Heart symbol equations from Walfram Mathworld: http://mathworld.wolfram.com/HeartCurve.html
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBegin(GL_POLYGON);
     glColor3f(1.0f, 0.2f, 0.2f);
@@ -579,6 +616,7 @@ void Breakout::mouseMove(int x, int y)
 
 void Breakout::keyStroke(unsigned char key, int x, int y)
 {
+    lastKeyPressed = key;
     switch (key)
     {
     case 'q': // Exit

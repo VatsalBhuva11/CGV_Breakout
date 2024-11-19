@@ -54,7 +54,9 @@ private:
         INIT,
         Menus,
         Gameplay,
-        Scoreboard
+        Scoreboard,
+        GameOver,
+        PlayerWon
     };
     Breakout::State gameState;
 
@@ -90,4 +92,4 @@ private:
     void drawCoordinate(void);
 };
 
-#endif // BREAKOUT_H
+#endif
